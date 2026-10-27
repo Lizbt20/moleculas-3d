@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Alcanos ramificados · Visor molecular 3D</title>
+<link rel="preconnect" href="https://pubchem.ncbi.nlm.nih.gov">
+<style>
+:root{--ink:#172033;--muted:#5b687d;--line:#dbe3ef;--paper:#f4f7fb;--blue:#1769aa}
+*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.5 system-ui,-apple-system,Segoe UI,Arial,sans-serif}
+header{padding:26px 18px 20px;background:#102b46;color:white}header .wrap,main{max-width:1050px;margin:auto}
+.eyebrow{text-transform:uppercase;letter-spacing:.12em;font-size:.75rem;opacity:.8}h1{line-height:1.15;margin:.35rem 0;font-size:clamp(1.6rem,4vw,2.5rem)}header p{margin:.5rem 0 0;color:#d8e8f6}
+main{padding:18px;display:grid;grid-template-columns:280px 1fr;gap:16px}
+.panel{background:white;border:1px solid var(--line);border-radius:16px;padding:16px;box-shadow:0 5px 18px #102b4608}
+h2{font-size:1.1rem;margin:0 0 10px}button,select{font:inherit;border:1px solid #bdcadd;border-radius:10px;padding:10px;background:white;color:var(--ink);cursor:pointer}
+button:hover{border-color:var(--blue)}.mollist{display:grid;gap:8px}.molbtn{width:100%;text-align:left}.molbtn[aria-pressed=true]{background:#eaf4ff;border-color:#1769aa}
+#viewer{height:min(60vh,520px);min-height:340px;border-radius:12px;background:radial-gradient(circle at 50% 35%,#fff,#e7eef7);overflow:hidden;position:relative}
+.controls{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}.info{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:12px}
+.stat{background:#f5f8fc;border-radius:10px;padding:10px}.stat small{display:block;color:var(--muted)}.stat strong{font-size:1.05rem}
+#status{padding:10px 12px;background:#fff8df;border:1px solid #f0dfa1;border-radius:10px;color:#594a18;margin:12px 0;font-size:.92rem}
+.muted{color:var(--muted);font-size:.92rem}.legend{display:flex;gap:12px;flex-wrap:wrap;font-size:.86rem;color:var(--muted)}.dot{display:inline-block;width:12px;height:12px;border-radius:50%;vertical-align:-1px;margin-right:4px}
+footer{max-width:1050px;padding:0 18px 24px;margin:auto;color:var(--muted);font-size:.86rem}
+@media(max-width:760px){main{grid-template-columns:1fr;padding:12px}.info{grid-template-columns:1fr 1fr}#viewer{min-height:320px;height:48vh}}
+</style>
+<script src="https://3Dmol.org/build/3Dmol-min.js"></script>
+</head>
+<body>
+<header><div class="wrap"><div class="eyebrow">Química · Tercero de Bachillerato</div><h1>Alcanos ramificados</h1><p>Explora moléculas en 3D, observa los átomos y reconoce la geometría tetraédrica del carbono.</p></div></header>
+<main>
+<aside class="panel">
+<h2>Selecciona una molécula</h2>
+<div class="mollist" id="mollist"></div>
+<hr style="border:0;border-top:1px solid var(--line);margin:16px 0">
+<h2>Cómo explorar</h2>
+<p class="muted">Arrastra para girar · usa la rueda o pellizca para acercar · toca un átomo para ver su elemento.</p>
+<div class="legend"><span><i class="dot" style="background:#444"></i>Carbono</span><span><i class="dot" style="background:#f8f8f8;border:1px solid #aaa"></i>Hidrógeno</span></div>
+</aside>
+<section class="panel">
+<div style="display:flex;justify-content:space-between;gap:10px;align-items:start;flex-wrap:wrap">
+<div><h2 id="moltitle">2-metilpentano</h2><div class="muted" id="systematic">Modelo molecular 3D</div></div>
+<div class="controls" style="margin:0"><button id="reset">Centrar modelo</button><button id="spin">Girar: sí</button></div>
+</div>
+<div id="viewer"></div>
+<div id="status">Cargando estructura 3D desde PubChem… Se necesita conexión a internet.</div>
+<div class="info">
+<div class="stat"><small>Fórmula molecular</small><strong id="formula">C₆H₁₄</strong></div>
+<div class="stat"><small>Átomos totales</small><strong id="atoms">20</strong></div>
+<div class="stat"><small>Enlaces</small><strong id="bonds">19</strong></div>
+</div>
+<p id="description" class="muted"></p>
+<p class="muted">Las coordenadas 3D proceden de PubChem cuando existe un conformero disponible. Es una representación educativa de una conformación molecular, no una simulación dinámica.</p>
+</section>
+</main>
+<footer>Proyecto educativo gratuito. Visor 3D: 3Dmol.js. Datos químicos: PubChem, NIH. Requiere internet para cargar el visor y las estructuras.</footer>
+<script>
+const molecules=[
+{name:"2-metilpentano",query:"2-methylpentane",formula:"C₆H₁₄",atoms:20,bonds:19,desc:"Cadena principal de cinco carbonos con un grupo metilo en el carbono 2."},
+{name:"3-metilhexano",query:"3-methylhexane",formula:"C₇H₁₆",atoms:23,bonds:22,desc:"Cadena principal de seis carbonos con un grupo metilo en el carbono 3."},
+{name:"2,2-dimetilbutano",query:"2,2-dimethylbutane",formula:"C₆H₁₄",atoms:20,bonds:19,desc:"Cadena principal de cuatro carbonos con dos grupos metilo en el carbono 2."},
+{name:"2,3-dimetilpentano",query:"2,3-dimethylpentane",formula:"C₇H₁₆",atoms:23,bonds:22,desc:"Cadena principal de cinco carbonos con grupos metilo en los carbonos 2 y 3."},
+{name:"2-metilhexano",query:"2-methylhexane",formula:"C₇H₁₆",atoms:23,bonds:22,desc:"Cadena principal de seis carbonos con un grupo metilo en el carbono 2."}
+];
+let viewer=null, current=0, spinning=true, spinTimer=null;
+const list=document.getElementById('mollist');
+molecules.forEach((m,i)=>{const b=document.createElement('button');b.className='molbtn';b.textContent=m.name;b.setAttribute('aria-pressed',i===0?'true':'false');b.onclick=()=>loadMol(i);list.appendChild(b)});
+function setStatus(s,isError=false){const el=document.getElementById('status');el.textContent=s;el.style.background=isError?'#fff0f0':'#fff8df';el.style.borderColor=isError?'#efb5b5':'#f0dfa1';}
+function initViewer(){if(viewer)return;viewer=$3Dmol.createViewer(document.getElementById('viewer'),{backgroundColor:'#edf3fa', antialias:true});}
+async function loadMol(i){
+ current=i;const m=molecules[i];document.querySelectorAll('.molbtn').forEach((b,j)=>b.setAttribute('aria-pressed',j===i?'true':'false'));
+ document.getElementById('moltitle').textContent=m.name;document.getElementById('systematic').textContent='Modelo molecular 3D · alcano ramificado';
+ document.getElementById('formula').textContent=m.formula;document.getElementById('atoms').textContent=m.atoms;document.getElementById('bonds').textContent=m.bonds;document.getElementById('description').textContent=m.desc;
+ initViewer();viewer.clear();setStatus('Buscando una estructura tridimensional en PubChem…');
+ try{
+   let r=await fetch('https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/'+encodeURIComponent(m.query)+'/record/SDF?record_type=3d');
+   if(!r.ok) throw new Error('No se encontró un conformero 3D directo.');
+   let sdf=await r.text();if(!sdf.includes('M  END'))throw new Error('La estructura recibida no es válida.');
+   viewer.addModel(sdf,'sdf');viewer.setStyle({}, {stick:{radius:0.16},sphere:{scale:0.28}});viewer.setHoverable({},true,(atom)=>{const el=atom.elem||'átomo';setStatus('Átomo seleccionado: '+el+(atom.serial?' · número '+atom.serial:''));},()=>{});
+   viewer.zoomTo();viewer.render();setStatus('Estructura 3D cargada. Arrastra el modelo para explorarlo.');
+   if(spinning) viewer.spin(true);
+ }catch(e){
+   setStatus('No se pudo cargar la estructura desde PubChem. Comprueba tu conexión o inténtalo de nuevo. ('+e.message+')',true);
+ }
+}
+document.getElementById('reset').onclick=()=>{if(viewer){viewer.spin(false);viewer.zoomTo();viewer.render();if(spinning)viewer.spin(true)}};
+document.getElementById('spin').onclick=()=>{spinning=!spinning;document.getElementById('spin').textContent='Girar: '+(spinning?'sí':'no');if(viewer)viewer.spin(spinning)};
+loadMol(0);
+</script>
+</body></html>
